@@ -22,7 +22,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :p
 app.get('/', (request, response) => {
   response.send('<h1>Phone book!</h1>')
 })
-  
+
 // Get all phonebook entries
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(result => {
@@ -33,14 +33,14 @@ app.get('/api/persons', (request, response) => {
 //Get info about phonebook
 app.get('/info', async (request, response) => {
   const requestTime = new Date()
-    
+
   try {
     const phonebookinfo = await countPeople()
-    console.log('testcount value:', phonebookinfo) 
+    console.log('testcount value:', phonebookinfo)
     if (typeof phonebookinfo === 'undefined') {
       console.error('phonebookinfo is undefined before response')
     }
-  
+
     response.send(`
         <p>Phonebook has info for ${phonebookinfo} people</p>
         <p>${requestTime}</p>
@@ -50,7 +50,7 @@ app.get('/info', async (request, response) => {
     response.status(500).send('Internal Server Error')
   }
 })
-  
+
 //function for Counting the number of entries
 async function countPeople() {
   try {
@@ -83,16 +83,16 @@ app.delete('/api/persons/:id', (request, response, next) => {
 //Create an entry
 app.post('/api/persons', (request, response, next) => {
   const body = request.body
-  
+
   if (!body.name || !body.number) {
     return response.status(400).json({ error: 'content missing' })
   }
-  
+
   const person = new Person({
     name: body.name,
     number: body.number,
   })
-  
+
   person.save().then(savedPerson => {
     response.json(savedPerson)
   })
@@ -102,7 +102,7 @@ app.post('/api/persons', (request, response, next) => {
 //Update an entry
 app.put('/api/persons/:id', (request, response, next) => {
   const { name, number } = request.body
-  
+
   Person.findByIdAndUpdate(
     request.params.id,
     { name, number },
@@ -120,26 +120,26 @@ app.put('/api/persons/:id', (request, response, next) => {
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
-  
+
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
-  
+
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  }
   else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message })
   }
-  
+
   next(error)
 }
-  
+
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 
-  
+
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
