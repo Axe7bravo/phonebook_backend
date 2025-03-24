@@ -62,6 +62,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :p
       return 0; // Or throw an error, or return a default value
     }
   };
+
   //Get a specific entry
   app.get('/api/persons/:id', (request, response) => {
     Person.findById(request.params.id).then(person => {
